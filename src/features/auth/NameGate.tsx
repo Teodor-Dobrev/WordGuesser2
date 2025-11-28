@@ -3,9 +3,12 @@ import type { FormEvent } from 'react'
 
 interface NameGateProps {
   onEnter: (name: string) => void
+  title?: string
+  description?: string
+  onBack?: () => void
 }
 
-export function NameGate({ onEnter }: NameGateProps) {
+export function NameGate({ onEnter, title = 'Word Guesser', description = 'Enter your name to jump into a round.', onBack }: NameGateProps) {
   const [name, setName] = useState('')
 
   const handleSubmit = (event: FormEvent) => {
@@ -19,8 +22,8 @@ export function NameGate({ onEnter }: NameGateProps) {
 
   return (
     <div className="panel name-gate">
-      <h1>Word Guesser</h1>
-      <p className="muted">Enter your name to jump into a round.</p>
+      <h1>{title}</h1>
+      <p className="muted">{description}</p>
       <form onSubmit={handleSubmit} className="name-form">
         <input
           type="text"
@@ -32,6 +35,11 @@ export function NameGate({ onEnter }: NameGateProps) {
         />
         <button type="submit" className="primary">Play</button>
       </form>
+      {onBack && (
+        <button type="button" className="link-button" onClick={onBack}>
+          Back to project picker
+        </button>
+      )}
     </div>
   )
 }

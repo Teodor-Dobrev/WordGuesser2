@@ -19,9 +19,10 @@ import { getLeaderboard, recordLeaderboardEntry } from '../leaderboard/storage'
 interface GamePageProps {
   playerName: string
   onResetPlayer: () => void
+  onSwitchProject?: () => void
 }
 
-export function GamePage({ playerName, onResetPlayer }: GamePageProps) {
+export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePageProps) {
   const [language, setLanguage] = useState<GameLanguage>('english')
   const [board, setBoard] = useState(() => generateBoard('english'))
   const [dictionary, setDictionary] = useState<Set<string>>(new Set())
@@ -377,6 +378,11 @@ export function GamePage({ playerName, onResetPlayer }: GamePageProps) {
               <button type="button" className="action" onClick={onResetPlayer}>
                 Change name
               </button>
+              {onSwitchProject && (
+                <button type="button" className="action" onClick={onSwitchProject}>
+                  Switch project
+                </button>
+              )}
             </div>
           </section>
           <section className="control-card">
