@@ -14,7 +14,12 @@ import { loadDictionary } from '../../services/dictionaryLoader'
 import { getDefinition } from '../../services/definitionsCache'
 import { EndOfGameModal } from '../stats/EndOfGameModal'
 import { LeaderboardModal } from '../leaderboard/LeaderboardModal'
-import { getLeaderboard, recordLeaderboardEntry } from '../leaderboard/storage'
+import {
+  getLeaderboard,
+  recordLeaderboardEntry,
+  getPlayerHighScore,
+  recordPlayerHighScore,
+} from '../leaderboard/storage'
 
 interface GamePageProps {
   playerName: string
@@ -36,8 +41,7 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
   const selection = useSelectionManager(board)
   const { selectedPath, currentWord, select, typeLetter, backspace, clear } = selection
   const [guessedWords, setGuessedWords] = useState<GuessedWord[]>([])
-  const [points, setPoints] = useState(0)
-  const [score, setScore] = useState(0)
+  const [playerHighScore, setPlayerHighScore] = useState(() => getPlayerHighScore(playerName))
   const [showStatsModal, setShowStatsModal] = useState(false)
   const [leaderboardEntries, setLeaderboardEntries] = useState(() => getLeaderboard(DEFAULT_TIMER_SECONDS))
   const [leaderboardTimer, setLeaderboardTimer] = useState(DEFAULT_TIMER_SECONDS)
@@ -45,6 +49,8 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
   const [highlightEntryId, setHighlightEntryId] = useState<string | undefined>(undefined)
   const gameActive = status === 'running'
   const languageLabel = language === 'english' ? 'English' : 'Български'
+  const wordsFound = guessedWords.length
+  const roundPoints = useMemo(() => guessedWords.reduce((sum, entry) => sum + entry.points, 0), [guessedWords])
 
   useEffect(() => {
     let cancelled = false
@@ -119,11 +125,6 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
 
     clear()
 
-    if (accepted) {
-      setPoints((prev) => prev + wordPoints)
-      setScore((prev) => prev + 1)
-    }
-
     if (!accepted && !duplicate) {
       return
     }
@@ -161,26 +162,33 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
       setRemainingMs(0)
       setShowStatsModal(true)
       const entryId = safeId()
+      // Compute the round's total from the guessed words to avoid races
       const leaderboardEntry = {
         id: entryId,
         player: playerName,
-        points,
-        words: guessedWords.length,
+        points: roundPoints,
+        words: wordsFound,
         timerSeconds,
         finishedAt: new Date().toISOString(),
       }
       const updated = recordLeaderboardEntry(leaderboardEntry)
       setLeaderboardEntries(updated)
+      const updatedHighScore = recordPlayerHighScore(playerName, roundPoints)
+      setPlayerHighScore(updatedHighScore)
       setHighlightEntryId(entryId)
       clear()
       setLeaderboardTimer(timerSeconds)
     },
-    [clear, guessedWords.length, playerName, points, stopTimer, timerSeconds],
+    [clear, wordsFound, playerName, roundPoints, stopTimer, timerSeconds],
   )
 
   useEffect(() => {
     stopGameRef.current = stopGame
   }, [stopGame])
+
+    useEffect(() => {
+      setPlayerHighScore(getPlayerHighScore(playerName))
+    }, [playerName])
 
   const startGame = useCallback(() => {
     if (dictionaryLoading) return
@@ -188,8 +196,6 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
     setBoard(generateBoard(language))
     clear()
     setGuessedWords([])
-    setPoints(0)
-    setScore(0)
     setStatus('running')
     const totalMs = timerSeconds * 1000
     setRemainingMs(totalMs)
@@ -333,9 +339,10 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
         </div>
         <div className="status-bar">
           <div className="status-chip">Time: {timerDisplay}</div>
-          <div className="status-chip">Words: {score}</div>
-          <div className="status-chip">Points: {points}</div>
+          <div className="status-chip">Words: {wordsFound}</div>
+          <div className="status-chip">Points: {roundPoints}</div>
           <div className="status-chip">Player: {playerName}</div>
+          <div className="status-chip">High score: {playerHighScore}</div>
         </div>
       </div>
 
@@ -363,7 +370,7 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
             <div className="button-grid">
               <button
                 type="button"
-                className="action"
+                className="action success"
                 onClick={startGame}
                 disabled={gameActive || dictionaryLoading}
               >
@@ -431,7 +438,7 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
         </div>
       </div>
 
-      <EndOfGameModal open={showStatsModal} words={guessedWords} totalPoints={points} onClose={handleStatsClose} />
+      <EndOfGameModal open={showStatsModal} words={guessedWords} highScore={playerHighScore} onClose={handleStatsClose} />
       <LeaderboardModal
         open={showLeaderboard}
         entries={leaderboardEntries}

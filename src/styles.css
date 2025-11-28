@@ -249,6 +249,23 @@ button.action.primary:disabled {
   opacity: 0.5;
 }
 
+/* Success variant (used for Start button) */
+button.action.success {
+  background: linear-gradient(120deg, #10b981, #14b8a6);
+  color: #fff;
+  border-color: transparent;
+}
+
+button.action.success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.action.success:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.25);
+}
+
 button.danger {
   border-color: #fecaca;
   color: #dc2626;

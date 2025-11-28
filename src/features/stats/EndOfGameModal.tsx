@@ -3,20 +3,29 @@ import type { GuessedWord } from '../game/types'
 interface EndOfGameModalProps {
   open: boolean
   words: GuessedWord[]
-  totalPoints: number
+  highScore?: number
   onClose: () => void
 }
 
-export function EndOfGameModal({ open, words, totalPoints, onClose }: EndOfGameModalProps) {
+export function EndOfGameModal({ open, words, highScore, onClose }: EndOfGameModalProps) {
   if (!open) return null
+
+  // Compute round total from the words array to ensure accuracy even if external
+  // `points` state changed after the modal was requested.
+  const roundTotal = words.reduce((s, w) => s + (w.points || 0), 0)
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="modal-card">
         <h2>Round Summary</h2>
         <p>
-          {words.length} words · {totalPoints} points
+          {words.length} words · {roundTotal} points
         </p>
+        {typeof highScore !== 'undefined' ? (
+          <p>
+            High Score (for you, this session): <strong>{highScore}</strong>
+          </p>
+        ) : null}
         <div className="guessed-panel" style={{ maxHeight: '50vh' }}>
           {words.length === 0 ? (
             <p>No correct guesses this round. Next one will be better!</p>
