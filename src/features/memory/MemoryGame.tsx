@@ -104,7 +104,7 @@ export function MemoryGame({ playerName, onResetPlayer, onSwitchProject }: Memor
   const [matchesFound, setMatchesFound] = useState(0)
   const [attempts, setAttempts] = useState(0)
   const [elapsedMs, setElapsedMs] = useState(0)
-  const [bestTimeMs, setBestTimeMs] = useState(() => getPlayerHighScore(MEMORY_GAME_ID, playerName))
+  const [bestTimeMs, setBestTimeMs] = useState(() => getPlayerHighScore(MEMORY_GAME_ID, playerName, difficulty))
 
   const timerRef = useRef<number | null>(null)
   const statusRef = useRef<GameStatus>(status)
@@ -119,8 +119,8 @@ export function MemoryGame({ playerName, onResetPlayer, onSwitchProject }: Memor
   }, [elapsedMs])
 
   useEffect(() => {
-    setBestTimeMs(getPlayerHighScore(MEMORY_GAME_ID, playerName))
-  }, [playerName])
+    setBestTimeMs(getPlayerHighScore(MEMORY_GAME_ID, playerName, difficulty))
+  }, [playerName, difficulty])
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
@@ -173,10 +173,10 @@ export function MemoryGame({ playerName, onResetPlayer, onSwitchProject }: Memor
     statusRef.current = 'ended'
     const finalTime = elapsedRef.current
     if (finalTime > 0) {
-      const updated = recordPlayerHighScore(MEMORY_GAME_ID, playerName, finalTime, { mode: 'min' })
+      const updated = recordPlayerHighScore(MEMORY_GAME_ID, playerName, finalTime, { mode: 'min', scope: difficulty })
       setBestTimeMs(updated)
     }
-  }, [playerName, stopTimer])
+  }, [difficulty, playerName, stopTimer])
 
   const handleStart = useCallback(() => {
     if (statusRef.current === 'running') return
@@ -298,7 +298,9 @@ export function MemoryGame({ playerName, onResetPlayer, onSwitchProject }: Memor
           <span className="status-chip">Time: {timeLabel}</span>
           <span className="status-chip">Matches: {matchesFound}/{totalPairs}</span>
           <span className="status-chip">Attempts: {attempts}</span>
-          <span className="status-chip">Best time: {bestTimeLabel}</span>
+          <span className="status-chip">
+            Best time ({DIFFICULTY_PRESETS[difficulty].label}): {bestTimeLabel}
+          </span>
         </div>
       </header>
       <div className="memory-toolbar">

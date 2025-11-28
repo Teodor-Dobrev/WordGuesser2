@@ -82,8 +82,8 @@ export function WormGame({ playerName, onResetPlayer, onSwitchProject }: WormGam
   const [status, setStatus] = useState<'idle' | 'running' | 'ended'>('idle')
   const [direction, setDirection] = useState<Direction>(DEFAULT_DIRECTION)
   const [score, setScore] = useState(0)
-  const [highScore, setHighScore] = useState(() => getPlayerHighScore(WORM_GAME_ID, playerName))
   const [difficulty, setDifficulty] = useState<keyof typeof DIFFICULTY_PRESETS>('normal')
+  const [highScore, setHighScore] = useState(() => getPlayerHighScore(WORM_GAME_ID, playerName, 'normal'))
   const tickDuration = DIFFICULTY_PRESETS[difficulty].speed
 
   const snakeRef = useRef(snake)
@@ -122,9 +122,9 @@ export function WormGame({ playerName, onResetPlayer, onSwitchProject }: WormGam
 
   const finalizeScore = useCallback(() => {
     const finalScore = scoreRef.current
-    const updated = recordPlayerHighScore(WORM_GAME_ID, playerName, finalScore)
+    const updated = recordPlayerHighScore(WORM_GAME_ID, playerName, finalScore, { scope: difficulty })
     setHighScore(updated)
-  }, [playerName])
+  }, [difficulty, playerName])
 
   const finishRound = useCallback(() => {
     if (statusRef.current !== 'running') return
@@ -235,8 +235,8 @@ export function WormGame({ playerName, onResetPlayer, onSwitchProject }: WormGam
   }, [startLoop])
 
   useEffect(() => {
-    setHighScore(getPlayerHighScore(WORM_GAME_ID, playerName))
-  }, [playerName])
+    setHighScore(getPlayerHighScore(WORM_GAME_ID, playerName, difficulty))
+  }, [playerName, difficulty])
 
   const snakeCells = useMemo(() => new Set(snake.map(coordKey)), [snake])
   const statusLabel = status === 'running' ? 'Running' : status === 'ended' ? 'Stopped' : 'Ready'
@@ -273,7 +273,7 @@ export function WormGame({ playerName, onResetPlayer, onSwitchProject }: WormGam
         <div className="worm-scoreboard">
           <span className="status-chip">Status: {statusLabel}</span>
           <span className="status-chip">Score: {score}</span>
-          <span className="status-chip">High score: {highScore}</span>
+          <span className="status-chip">High score ({DIFFICULTY_PRESETS[difficulty].label}): {highScore}</span>
           <span className="status-chip">Length: {snake.length}</span>
         </div>
       </header>

@@ -45,6 +45,17 @@ export function getLeaderboard(timerSeconds: number) {
 
 type HighScoreBuckets = Record<string, Record<string, number>>
 
+type HighScoreMode = 'max' | 'min'
+
+interface HighScoreOptions {
+  mode?: HighScoreMode
+  scope?: string
+}
+
+function buildPlayerKey(player: string, scope?: string) {
+  return scope ? `${player}::${scope}` : player
+}
+
 function readHighScoreStore(): HighScoreBuckets {
   if (typeof window === 'undefined') return {}
   try {
@@ -66,15 +77,10 @@ function writeHighScoreStore(store: HighScoreBuckets) {
   }
 }
 
-export function getPlayerHighScore(gameId: string, player: string) {
+export function getPlayerHighScore(gameId: string, player: string, scope?: string) {
   const store = readHighScoreStore()
-  return store[gameId]?.[player] ?? 0
-}
-
-type HighScoreMode = 'max' | 'min'
-
-interface HighScoreOptions {
-  mode?: HighScoreMode
+  const bucket = store[gameId] ?? {}
+  return bucket[buildPlayerKey(player, scope)] ?? 0
 }
 
 export function recordPlayerHighScore(
@@ -84,17 +90,19 @@ export function recordPlayerHighScore(
   options?: HighScoreOptions,
 ) {
   const mode: HighScoreMode = options?.mode ?? 'max'
+  const scope = options?.scope
   if (candidate <= 0) {
-    return getPlayerHighScore(gameId, player)
+    return getPlayerHighScore(gameId, player, scope)
   }
   const store = readHighScoreStore()
   const bucket = store[gameId] ?? {}
-  const current = bucket[player] ?? 0
+  const playerKey = buildPlayerKey(player, scope)
+  const current = bucket[playerKey] ?? 0
   const isBetter = current === 0 ? true : mode === 'max' ? candidate > current : candidate < current
   if (!isBetter) {
     return current
   }
-  bucket[player] = candidate
+  bucket[playerKey] = candidate
   store[gameId] = bucket
   writeHighScoreStore(store)
   return candidate
