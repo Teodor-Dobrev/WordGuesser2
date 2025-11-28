@@ -48,3 +48,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+src/assets/dictionaries/alpaca_bulgarian_all_categories.json
