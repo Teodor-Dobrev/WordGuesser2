@@ -640,3 +640,133 @@ button.guess:not(:disabled):hover {
   margin: 0;
   color: #475569;
 }
+
+/* Memory game styles */
+.memory-game {
+  width: min(1200px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.memory-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.memory-scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.memory-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.memory-hint {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.memory-grid {
+  display: grid;
+  gap: 10px;
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+
+.memory-card {
+  aspect-ratio: 1 / 1;
+  perspective: 900px;
+  max-width: 120px;
+  width: 100%;
+  position: relative;
+}
+
+.memory-card-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.memory-card-button[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+.memory-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+  transform: rotateY(0deg);
+}
+
+.memory-card.flipped .memory-card-inner {
+  transform: rotateY(180deg);
+}
+
+.memory-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(32px, 6vw, 72px);
+  transition: transform 0.45s ease, opacity 0.3s ease;
+}
+
+.memory-card-face.front {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  color: #fff;
+  font-size: clamp(28px, 5vw, 64px);
+  transform: rotateY(0deg);
+  opacity: 1;
+}
+
+.memory-card-face.back {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  transform: rotateY(180deg);
+  opacity: 0;
+}
+
+.memory-card.flipped .memory-card-face.front {
+  transform: rotateY(180deg);
+  opacity: 0;
+}
+
+.memory-card.flipped .memory-card-face.back {
+  transform: rotateY(0deg);
+  opacity: 1;
+}
+
+.memory-card.matched .memory-card-inner {
+  box-shadow: 0 16px 36px rgba(34, 197, 94, 0.35);
+}
+
+.memory-controls {
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.memory-tip {
+  margin: 0;
+  color: #475569;
+}

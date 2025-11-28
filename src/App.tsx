@@ -2,6 +2,7 @@ import { NameGate } from './features/auth/NameGate'
 import { GamePage } from './features/game/GamePage'
 import { GamePicker, type SideProject } from './features/projects/GamePicker'
 import { WormGame } from './features/worm/WormGame'
+import { MemoryGame } from './features/memory/MemoryGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -17,6 +18,13 @@ const PROJECTS: SideProject[] = [
     name: 'Worm',
     tagline: 'A soothing snake remake',
     description: 'Guide the neon worm to tasty apples, avoid yourself, and chase a personal high score with instant restarts.',
+    status: 'available',
+  },
+  {
+    id: 'memorymatch',
+    name: 'Match the Emoji',
+    tagline: 'Flip panels, beat the clock',
+    description: 'A classic memory challenge with emoji tiles, five difficulty levels, and best-time tracking per player.',
     status: 'available',
   },
   {
@@ -39,6 +47,7 @@ export default function App() {
   const [activeProject, setActiveProject] = useLocalStorageState<string>('sideprojects:selected', '')
   const [playerName, setPlayerName] = useLocalStorageState<string>('wordguesser:player', '')
   const [wormPlayerName, setWormPlayerName] = useLocalStorageState<string>('wormgame:player', '')
+  const [memoryPlayerName, setMemoryPlayerName] = useLocalStorageState<string>('memorymatch:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -100,6 +109,31 @@ export default function App() {
         <WormGame
           playerName={wormPlayerName}
           onResetPlayer={() => setWormPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'memorymatch') {
+    if (!memoryPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setMemoryPlayerName}
+            title="Match the Emoji"
+            description="Pick a display name to keep track of your best times."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <MemoryGame
+          playerName={memoryPlayerName}
+          onResetPlayer={() => setMemoryPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>

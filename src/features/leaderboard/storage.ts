@@ -71,14 +71,27 @@ export function getPlayerHighScore(gameId: string, player: string) {
   return store[gameId]?.[player] ?? 0
 }
 
-export function recordPlayerHighScore(gameId: string, player: string, candidate: number) {
+type HighScoreMode = 'max' | 'min'
+
+interface HighScoreOptions {
+  mode?: HighScoreMode
+}
+
+export function recordPlayerHighScore(
+  gameId: string,
+  player: string,
+  candidate: number,
+  options?: HighScoreOptions,
+) {
+  const mode: HighScoreMode = options?.mode ?? 'max'
   if (candidate <= 0) {
     return getPlayerHighScore(gameId, player)
   }
   const store = readHighScoreStore()
   const bucket = store[gameId] ?? {}
   const current = bucket[player] ?? 0
-  if (candidate <= current) {
+  const isBetter = current === 0 ? true : mode === 'max' ? candidate > current : candidate < current
+  if (!isBetter) {
     return current
   }
   bucket[player] = candidate
