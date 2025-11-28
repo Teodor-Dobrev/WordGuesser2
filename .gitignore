@@ -1,4 +1,30 @@
-# Logs
+/node_modules
+/dist
+/build
+/.cache
+/.idea
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+.DS_Store
+public/definitions_cache_local.json
+definitions_cache_local.json
+scripts/update_definitions_cache.js
+*.local
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.history
+/tmp
+src/assets/dictionaries/alpaca_bulgarian_all_categories.json# Logs
 logs
 *.log
 npm-debug.log*
