@@ -21,6 +21,8 @@ import {
   recordPlayerHighScore,
 } from '../leaderboard/storage'
 
+const WORD_GUESSER_GAME_ID = 'wordguesser'
+
 interface GamePageProps {
   playerName: string
   onResetPlayer: () => void
@@ -41,7 +43,7 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
   const selection = useSelectionManager(board)
   const { selectedPath, currentWord, select, typeLetter, backspace, clear } = selection
   const [guessedWords, setGuessedWords] = useState<GuessedWord[]>([])
-  const [playerHighScore, setPlayerHighScore] = useState(() => getPlayerHighScore(playerName))
+  const [playerHighScore, setPlayerHighScore] = useState(() => getPlayerHighScore(WORD_GUESSER_GAME_ID, playerName))
   const [showStatsModal, setShowStatsModal] = useState(false)
   const [leaderboardEntries, setLeaderboardEntries] = useState(() => getLeaderboard(DEFAULT_TIMER_SECONDS))
   const [leaderboardTimer, setLeaderboardTimer] = useState(DEFAULT_TIMER_SECONDS)
@@ -173,7 +175,7 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
       }
       const updated = recordLeaderboardEntry(leaderboardEntry)
       setLeaderboardEntries(updated)
-      const updatedHighScore = recordPlayerHighScore(playerName, roundPoints)
+      const updatedHighScore = recordPlayerHighScore(WORD_GUESSER_GAME_ID, playerName, roundPoints)
       setPlayerHighScore(updatedHighScore)
       setHighlightEntryId(entryId)
       clear()
@@ -187,7 +189,7 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
   }, [stopGame])
 
     useEffect(() => {
-      setPlayerHighScore(getPlayerHighScore(playerName))
+      setPlayerHighScore(getPlayerHighScore(WORD_GUESSER_GAME_ID, playerName))
     }, [playerName])
 
   const startGame = useCallback(() => {

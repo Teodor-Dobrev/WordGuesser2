@@ -1,6 +1,7 @@
 import { NameGate } from './features/auth/NameGate'
 import { GamePage } from './features/game/GamePage'
 import { GamePicker, type SideProject } from './features/projects/GamePicker'
+import { WormGame } from './features/worm/WormGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -9,6 +10,13 @@ const PROJECTS: SideProject[] = [
     name: 'Word Guesser',
     tagline: 'Race the grid, rack up points',
     description: 'Build words on a randomized grid, chase leaderboards, and grow your lexicon with bundled dictionaries.',
+    status: 'available',
+  },
+  {
+    id: 'wormgame',
+    name: 'Worm',
+    tagline: 'A soothing snake remake',
+    description: 'Guide the neon worm to tasty apples, avoid yourself, and chase a personal high score with instant restarts.',
     status: 'available',
   },
   {
@@ -30,6 +38,7 @@ const PROJECTS: SideProject[] = [
 export default function App() {
   const [activeProject, setActiveProject] = useLocalStorageState<string>('sideprojects:selected', '')
   const [playerName, setPlayerName] = useLocalStorageState<string>('wordguesser:player', '')
+  const [wormPlayerName, setWormPlayerName] = useLocalStorageState<string>('wormgame:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -66,6 +75,31 @@ export default function App() {
         <GamePage
           playerName={playerName}
           onResetPlayer={() => setPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'wormgame') {
+    if (!wormPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setWormPlayerName}
+            title="Worm"
+            description="Enter your player name to track your personal high score."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <WormGame
+          playerName={wormPlayerName}
+          onResetPlayer={() => setWormPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>

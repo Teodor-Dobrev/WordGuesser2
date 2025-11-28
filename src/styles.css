@@ -560,3 +560,83 @@ button.guess:not(:disabled):hover {
 .general-info strong {
   color: #1e293b;
 }
+
+/* Worm game styles */
+.worm-game {
+  width: min(1100px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.worm-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.worm-scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.worm-grid {
+  display: grid;
+  gap: 4px;
+  align-self: center;
+  max-width: min(640px, 100%);
+  width: 100%;
+  background: #0f172a;
+  padding: 18px;
+  border-radius: 20px;
+  box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.35);
+}
+
+.worm-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  background: #1e293b;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.worm-cell.snake {
+  background: linear-gradient(135deg, #34d399, #10b981);
+}
+
+.worm-cell.head {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+}
+
+.worm-cell.apple {
+  background: linear-gradient(135deg, #f97316, #fb7185);
+}
+
+.worm-controls {
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.worm-settings {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.worm-difficulty select {
+  min-width: 140px;
+}
+
+.worm-speed-hint {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.worm-hint {
+  margin: 0;
+  color: #475569;
+}

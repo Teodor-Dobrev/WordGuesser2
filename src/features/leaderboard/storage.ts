@@ -1,7 +1,7 @@
 import type { LeaderboardEntry } from '../game/types'
 
 const STORAGE_KEY = 'wordguesser:leaderboard'
-const HIGH_SCORE_KEY = 'wordguesser:highscores'
+const HIGH_SCORE_KEY = 'sideprojects:highscores'
 const MAX_PER_BUCKET = 20
 
 function readStore(): Record<string, LeaderboardEntry[]> {
@@ -43,7 +43,9 @@ export function getLeaderboard(timerSeconds: number) {
   return store[bucketKey] ?? []
 }
 
-function readHighScoreStore(): Record<string, number> {
+type HighScoreBuckets = Record<string, Record<string, number>>
+
+function readHighScoreStore(): HighScoreBuckets {
   if (typeof window === 'undefined') return {}
   try {
     const raw = window.localStorage.getItem(HIGH_SCORE_KEY)
@@ -55,7 +57,7 @@ function readHighScoreStore(): Record<string, number> {
   }
 }
 
-function writeHighScoreStore(store: Record<string, number>) {
+function writeHighScoreStore(store: HighScoreBuckets) {
   if (typeof window === 'undefined') return
   try {
     window.localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(store))
@@ -64,21 +66,23 @@ function writeHighScoreStore(store: Record<string, number>) {
   }
 }
 
-export function getPlayerHighScore(player: string) {
+export function getPlayerHighScore(gameId: string, player: string) {
   const store = readHighScoreStore()
-  return store[player] ?? 0
+  return store[gameId]?.[player] ?? 0
 }
 
-export function recordPlayerHighScore(player: string, candidate: number) {
+export function recordPlayerHighScore(gameId: string, player: string, candidate: number) {
   if (candidate <= 0) {
-    return getPlayerHighScore(player)
+    return getPlayerHighScore(gameId, player)
   }
   const store = readHighScoreStore()
-  const current = store[player] ?? 0
+  const bucket = store[gameId] ?? {}
+  const current = bucket[player] ?? 0
   if (candidate <= current) {
     return current
   }
-  store[player] = candidate
+  bucket[player] = candidate
+  store[gameId] = bucket
   writeHighScoreStore(store)
   return candidate
 }
