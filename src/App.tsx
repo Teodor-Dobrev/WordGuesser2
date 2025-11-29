@@ -3,6 +3,7 @@ import { GamePage } from './features/game/GamePage'
 import { GamePicker, type SideProject } from './features/projects/GamePicker'
 import { WormGame } from './features/worm/WormGame'
 import { MemoryGame } from './features/memory/MemoryGame'
+import { PathFinderGame } from './features/pathfinder/PathFinderGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -28,6 +29,13 @@ const PROJECTS: SideProject[] = [
     status: 'available',
   },
   {
+    id: 'pathfinder',
+    name: 'Path Finder',
+    tagline: 'Drag the only safe route',
+    description: 'Sketch a route from entrance to exit on a randomized maze. Bigger grids unlock on higher difficulties.',
+    status: 'available',
+  },
+  {
     id: 'cipherfall',
     name: 'Cipherfall',
     tagline: 'Decrypt the neon rain',
@@ -48,6 +56,7 @@ export default function App() {
   const [playerName, setPlayerName] = useLocalStorageState<string>('wordguesser:player', '')
   const [wormPlayerName, setWormPlayerName] = useLocalStorageState<string>('wormgame:player', '')
   const [memoryPlayerName, setMemoryPlayerName] = useLocalStorageState<string>('memorymatch:player', '')
+  const [pathPlayerName, setPathPlayerName] = useLocalStorageState<string>('pathfinder:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -134,6 +143,31 @@ export default function App() {
         <MemoryGame
           playerName={memoryPlayerName}
           onResetPlayer={() => setMemoryPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'pathfinder') {
+    if (!pathPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setPathPlayerName}
+            title="Path Finder"
+            description="Pick a codename to log your best escape times."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <PathFinderGame
+          playerName={pathPlayerName}
+          onResetPlayer={() => setPathPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>

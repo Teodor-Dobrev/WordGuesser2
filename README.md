@@ -12,6 +12,14 @@ A modern React + TypeScript remake of the classic Word Guesser desktop game. Pla
 - **Guessed words panel** – shows live list of answers with their points and definitions.
 - **End-of-game stats + leaderboard** – a dedicated modal for guessed words/definitions, followed by a leaderboard window scoped to the round’s timer. All leaderboard data lives in `localStorage`.
 
+## Bonus Mini-Games
+
+When the main word grid feels warmed up, hop over to the Side Projects picker to try:
+
+- **Worm** – a neon snake remake with instant restarts, three difficulty presets, and per-difficulty high scores.
+- **Match the Emoji** – a multi-tier memory flip challenge that tracks your best clear times per board size.
+- **Path Finder** – a drag-to-draw maze that grows with each difficulty; reach the exit faster to set a new best time.
+
 ## Getting Started
 
 ```bash
