@@ -989,6 +989,25 @@ button.guess:not(:disabled):hover {
 .hangman-word .status-message {
   margin-top: 16px;
   font-size: 1rem;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.hangman-word .status-message strong {
+  letter-spacing: normal;
+}
+
+.hangman-definition {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  color: #475569;
+  letter-spacing: normal;
+  text-align: center;
+}
+
+.hangman-definition strong {
+  font-weight: 600;
 }
 
 .hangman-letters {
