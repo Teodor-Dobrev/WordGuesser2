@@ -4,6 +4,7 @@ import { GamePicker, type SideProject } from './features/projects/GamePicker'
 import { WormGame } from './features/worm/WormGame'
 import { MemoryGame } from './features/memory/MemoryGame'
 import { PathFinderGame } from './features/pathfinder/PathFinderGame'
+import { HangmanGame } from './features/hangman/HangmanGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -26,6 +27,13 @@ const PROJECTS: SideProject[] = [
     name: 'Match the Emoji',
     tagline: 'Flip panels, beat the clock',
     description: 'A classic memory challenge with emoji tiles, five difficulty levels, and best-time tracking per player.',
+    status: 'available',
+  },
+  {
+    id: 'hangman',
+    name: 'HangMan',
+    tagline: 'Classic gallows suspense',
+    description: 'Guess the hidden word from our dictionaries before the figure is complete. Streaks are tracked per language.',
     status: 'available',
   },
   {
@@ -56,6 +64,7 @@ export default function App() {
   const [playerName, setPlayerName] = useLocalStorageState<string>('wordguesser:player', '')
   const [wormPlayerName, setWormPlayerName] = useLocalStorageState<string>('wormgame:player', '')
   const [memoryPlayerName, setMemoryPlayerName] = useLocalStorageState<string>('memorymatch:player', '')
+  const [hangmanPlayerName, setHangmanPlayerName] = useLocalStorageState<string>('hangman:player', '')
   const [pathPlayerName, setPathPlayerName] = useLocalStorageState<string>('pathfinder:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
@@ -168,6 +177,31 @@ export default function App() {
         <PathFinderGame
           playerName={pathPlayerName}
           onResetPlayer={() => setPathPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'hangman') {
+    if (!hangmanPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setHangmanPlayerName}
+            title="HangMan"
+            description="Enter your alias to log your best streak."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <HangmanGame
+          playerName={hangmanPlayerName}
+          onResetPlayer={() => setHangmanPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>

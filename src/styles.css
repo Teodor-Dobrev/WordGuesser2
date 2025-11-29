@@ -919,3 +919,107 @@ button.guess:not(:disabled):hover {
   color: #065f46;
   border-color: #bbf7d0;
 }
+
+/* HangMan styles */
+.hangman-panel {
+  width: min(1100px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hangman-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.hangman-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.hangman-actions label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.hangman-actions select {
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  padding: 8px 12px;
+}
+
+.hangman-scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hangman-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  align-items: center;
+}
+
+.hangman-figure {
+  width: 100%;
+  max-width: 320px;
+  stroke: #0f172a;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.hangman-word {
+  text-align: center;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
+
+.hangman-word .status-message {
+  margin-top: 16px;
+  font-size: 1rem;
+}
+
+.hangman-letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+  gap: 10px;
+}
+
+.hangman-key {
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  padding: 10px 0;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.hangman-key:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hangman-key.correct {
+  background: #10b981;
+  border-color: #0f9f75;
+  color: #fff;
+}
+
+.hangman-key.wrong {
+  background: #fecaca;
+  border-color: #f87171;
+  color: #7f1d1d;
+}
