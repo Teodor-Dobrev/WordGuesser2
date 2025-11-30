@@ -1285,6 +1285,19 @@ button.guess:not(:disabled):hover {
   gap: 18px;
 }
 
+.minesweeper-panel.fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  border-radius: 0;
+  padding: 32px;
+  overflow: auto;
+}
+
+.minesweeper-panel.fullscreen .minesweeper-board {
+  flex-grow: 1;
+}
+
 .minesweeper-hero {
   display: flex;
   justify-content: space-between;

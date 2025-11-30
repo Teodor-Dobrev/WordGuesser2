@@ -44,7 +44,9 @@ export function MinesweeperGame({ playerName, onResetPlayer, onSwitchProject }: 
   const [firstMoveMade, setFirstMoveMade] = useState(false)
   const [elapsedMs, setElapsedMs] = useState(0)
   const [bestTimeMs, setBestTimeMs] = useState(() => getPlayerHighScore(MINESWEEPER_GAME_ID, playerName, difficulty) || 0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
+  const panelRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<number | null>(null)
   const startTimeRef = useRef<number | null>(null)
 
@@ -134,6 +136,14 @@ export function MinesweeperGame({ playerName, onResetPlayer, onSwitchProject }: 
   useEffect(() => {
     return () => stopTimer()
   }, [stopTimer])
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === panelRef.current)
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
 
   const startTimer = useCallback(() => {
     stopTimer()
@@ -232,6 +242,16 @@ export function MinesweeperGame({ playerName, onResetPlayer, onSwitchProject }: 
     [status],
   )
 
+  const toggleFullscreen = useCallback(() => {
+    const panel = panelRef.current
+    if (!panel) return
+    if (document.fullscreenElement === panel) {
+      document.exitFullscreen?.()
+      return
+    }
+    panel.requestFullscreen?.()
+  }, [])
+
   const handleRestart = useCallback(() => {
     stopTimer()
     setBoard(buildBoard(config))
@@ -248,7 +268,7 @@ export function MinesweeperGame({ playerName, onResetPlayer, onSwitchProject }: 
   const minesLeft = Math.max(0, config.mines - flaggedCount)
 
   return (
-    <div className="panel minesweeper-panel">
+    <div ref={panelRef} className={`panel minesweeper-panel${isFullscreen ? ' fullscreen' : ''}`}>
       <header className="minesweeper-hero">
         <div>
           <p className="eyebrow">Minesweeper Classic</p>
@@ -301,6 +321,9 @@ export function MinesweeperGame({ playerName, onResetPlayer, onSwitchProject }: 
           </button>
           <button type="button" className="action" onClick={onResetPlayer}>
             Change name
+          </button>
+          <button type="button" className="action" onClick={toggleFullscreen}>
+            {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
           </button>
           {onSwitchProject && (
             <button type="button" className="action" onClick={onSwitchProject}>
