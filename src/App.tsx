@@ -75,20 +75,6 @@ const PROJECTS: SideProject[] = [
     description: 'Two full acts of DnD-inspired choices, mana management, and turn-based combat versus scripted foes.',
     status: 'available',
   },
-  {
-    id: 'cipherfall',
-    name: 'Cipherfall',
-    tagline: 'Decrypt the neon rain',
-    description: 'A narrative puzzle prototype that decodes messages from an overclocked bulletin board. Coming soon.',
-    status: 'coming-soon',
-  },
-  {
-    id: 'botworks',
-    name: 'Bot Works',
-    tagline: 'Automate tiny factories',
-    description: 'Chain conveyor belts, bots, and timers to ship widgets faster than the stopwatch. Stay tuned.',
-    status: 'coming-soon',
-  },
 ]
 
 export default function App() {
