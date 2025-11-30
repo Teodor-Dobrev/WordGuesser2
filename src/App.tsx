@@ -6,6 +6,7 @@ import { MemoryGame } from './features/memory/MemoryGame'
 import { PathFinderGame } from './features/pathfinder/PathFinderGame'
 import { HangmanGame } from './features/hangman/HangmanGame'
 import { TypeRacerGame } from './features/typeracer/TypeRacerGame'
+import { ColorMatcherGame } from './features/colormatcher/ColorMatcherGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -45,6 +46,13 @@ const PROJECTS: SideProject[] = [
     status: 'available',
   },
   {
+    id: 'colormatcher',
+    name: 'Color Matcher',
+    tagline: 'Spot the odd tile.',
+    description: 'A reflex-heavy hue test with shrinking color gaps each round. Keep the streak alive before the clock runs out.',
+    status: 'available',
+  },
+  {
     id: 'pathfinder',
     name: 'Path Finder',
     tagline: 'Drag the only safe route',
@@ -75,6 +83,7 @@ export default function App() {
   const [hangmanPlayerName, setHangmanPlayerName] = useLocalStorageState<string>('hangman:player', '')
   const [pathPlayerName, setPathPlayerName] = useLocalStorageState<string>('pathfinder:player', '')
   const [typeracerPlayerName, setTyperacerPlayerName] = useLocalStorageState<string>('typeracer:player', '')
+  const [colorMatcherPlayerName, setColorMatcherPlayerName] = useLocalStorageState<string>('colormatcher:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -236,6 +245,31 @@ export default function App() {
         <TypeRacerGame
           playerName={typeracerPlayerName}
           onResetPlayer={() => setTyperacerPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'colormatcher') {
+    if (!colorMatcherPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setColorMatcherPlayerName}
+            title="Color Matcher"
+            description="Enter your alias to save the longest streak per difficulty."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <ColorMatcherGame
+          playerName={colorMatcherPlayerName}
+          onResetPlayer={() => setColorMatcherPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>
