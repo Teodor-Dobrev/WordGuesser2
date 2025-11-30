@@ -3,6 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 import { getPlayerHighScore, recordPlayerHighScore } from '../leaderboard/storage'
 
 const PATHFINDER_GAME_ID = 'pathfinder'
+const PATHFINDER_EFFICIENCY_ID = 'pathfinder:efficiency'
 const TIMER_TICK_MS = 100
 const GRID_GAP = 6
 
@@ -35,6 +36,8 @@ interface GeneratedMaze {
   grid: MazeCell[][]
   start: MazeCell
   end: MazeCell
+  optimalLength: number
+  optimalPathIds: Set<string>
 }
 
 interface DragContext {
@@ -53,6 +56,8 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
   const [gameState, setGameState] = useState<GameState>('idle')
   const [elapsedMs, setElapsedMs] = useState(0)
   const [bestTime, setBestTime] = useState(() => getPlayerHighScore(PATHFINDER_GAME_ID, playerName, difficulty))
+  const [bestEfficiency, setBestEfficiency] = useState(() => getPlayerHighScore(PATHFINDER_EFFICIENCY_ID, playerName, difficulty))
+  const [latestEfficiency, setLatestEfficiency] = useState<number | null>(null)
   const timerRef = useRef<number | null>(null)
   const startedAtRef = useRef<number | null>(null)
 
@@ -62,6 +67,8 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
 
   useEffect(() => {
     setBestTime(getPlayerHighScore(PATHFINDER_GAME_ID, playerName, difficulty))
+    setBestEfficiency(getPlayerHighScore(PATHFINDER_EFFICIENCY_ID, playerName, difficulty))
+    setLatestEfficiency(null)
   }, [difficulty, playerName])
 
   useEffect(() => {
@@ -85,6 +92,7 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
     setElapsedMs(0)
     setActivePath([])
     setGameState('idle')
+    setLatestEfficiency(null)
     if (nextMaze) {
       setMaze(nextMaze)
     }
@@ -102,7 +110,7 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
     setGameState('running')
   }
 
-  const finishRun = () => {
+  const finishRun = (pathLength: number) => {
     if (gameState === 'won' || !startedAtRef.current) return
     stopTimer()
     const finalTime = Date.now() - startedAtRef.current
@@ -114,6 +122,19 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
       scope: difficulty,
     })
     setBestTime(updated)
+    const optimalLength = maze.optimalLength
+    if (optimalLength > 0 && pathLength > 0) {
+      const efficiency = Math.min(100, (optimalLength / pathLength) * 100)
+      const rounded = Math.round(efficiency * 10) / 10
+      setLatestEfficiency(rounded)
+      const updatedEfficiency = recordPlayerHighScore(PATHFINDER_EFFICIENCY_ID, playerName, rounded, {
+        scope: difficulty,
+        mode: 'max',
+      })
+      setBestEfficiency(updatedEfficiency)
+    } else {
+      setLatestEfficiency(null)
+    }
   }
 
   const handleCellAction = (cell: MazeCell) => {
@@ -123,7 +144,7 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
         if (!cell.isStart) return current
         startRunIfNeeded()
         if (cell.isEnd) {
-          finishRun()
+          finishRun(1)
         }
         return [cell]
       }
@@ -143,7 +164,7 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
       }
       const nextPath = [...current, cell]
       if (cell.isEnd) {
-        finishRun()
+        finishRun(nextPath.length)
       }
       return nextPath
     })
@@ -181,6 +202,8 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
   const statusLabel = gameState === 'won' ? 'Completed' : gameState === 'running' ? 'Exploring' : 'Idle'
   const timerLabel = formatMs(elapsedMs)
   const bestLabel = bestTime > 0 ? formatMs(bestTime) : '—'
+  const bestEfficiencyLabel = bestEfficiency > 0 ? `${bestEfficiency.toFixed(1)}%` : '—'
+  const latestEfficiencyLabel = latestEfficiency !== null ? `${latestEfficiency.toFixed(1)}%` : '—'
 
   return (
     <div className="panel pathfinder-layout">
@@ -195,6 +218,8 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
           <div className="status-chip">Status: {statusLabel}</div>
           <div className="status-chip">Timer: {timerLabel}</div>
           <div className="status-chip">Best ({diffMeta.label}): {bestLabel}</div>
+          <div className="status-chip">Best route: {latestEfficiencyLabel}</div>
+          <div className="status-chip">Record route: {bestEfficiencyLabel}</div>
         </div>
       </header>
 
@@ -207,9 +232,12 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
             tailId={trailTailId}
             isCellEnabled={isCellEnabled}
             onCellAction={handleCellAction}
+            optimalPathIds={gameState === 'won' ? maze.optimalPathIds : undefined}
           />
           {gameState === 'won' && (
-            <div className="pathfinder-toast success">Path complete! Your time: {timerLabel}</div>
+            <div className="pathfinder-toast success">
+              Path complete! Time: {timerLabel} · Route efficiency: {latestEfficiencyLabel}
+            </div>
           )}
         </section>
         <section className="pathfinder-controls">
@@ -257,9 +285,10 @@ interface MazeBoardProps {
   tailId: string | null
   isCellEnabled: (cell: MazeCell) => boolean
   onCellAction: (cell: MazeCell) => void
+  optimalPathIds?: Set<string>
 }
 
-function MazeBoard({ grid, enabled, activePathIds, tailId, isCellEnabled, onCellAction }: MazeBoardProps) {
+function MazeBoard({ grid, enabled, activePathIds, tailId, isCellEnabled, onCellAction, optimalPathIds }: MazeBoardProps) {
   const gridRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState(false)
   const dragContext = useRef<DragContext | null>(null)
@@ -329,6 +358,7 @@ function MazeBoard({ grid, enabled, activePathIds, tailId, isCellEnabled, onCell
             const isActive = activePathIds.has(cell.id)
             const isTail = cell.id === tailId
             const enabledCell = enabled && isCellEnabled(cell)
+            const onOptimalPath = optimalPathIds?.has(cell.id)
             const classes = [
               'maze-cell',
               cell.isWall ? 'wall' : 'floor',
@@ -336,6 +366,7 @@ function MazeBoard({ grid, enabled, activePathIds, tailId, isCellEnabled, onCell
               cell.isEnd ? 'end' : '',
               isActive ? 'active' : '',
               isTail ? 'tail' : '',
+              onOptimalPath && !cell.isWall ? 'optimal-route' : '',
             ]
               .filter(Boolean)
               .join(' ')
@@ -415,10 +446,17 @@ function generateMaze(meta: (typeof DIFFICULTIES)[number]): GeneratedMaze {
     })),
   )
 
+  const optimalDistance = refreshedDistances[exitRow][cols - 1]
+  const optimalLength = optimalDistance >= 0 ? optimalDistance + 1 : 0
+
+  const optimalPathIds = new Set(primaryPath)
+
   return {
     grid,
     start: grid[startRow][0],
     end: grid[exitRow][cols - 1],
+    optimalLength,
+    optimalPathIds,
   }
 }
 
