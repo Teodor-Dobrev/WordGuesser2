@@ -7,6 +7,7 @@ import { PathFinderGame } from './features/pathfinder/PathFinderGame'
 import { HangmanGame } from './features/hangman/HangmanGame'
 import { TypeRacerGame } from './features/typeracer/TypeRacerGame'
 import { ColorMatcherGame } from './features/colormatcher/ColorMatcherGame'
+import { MinesweeperGame } from './features/minesweeper/MinesweeperGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -60,6 +61,13 @@ const PROJECTS: SideProject[] = [
     status: 'available',
   },
   {
+    id: 'minesweeper',
+    name: '💣 Minesweeper Classic',
+    tagline: 'Avoid the boom',
+    description: 'Three iconic board sizes, right-click flags, and best clear times tracked per difficulty.',
+    status: 'available',
+  },
+  {
     id: 'cipherfall',
     name: 'Cipherfall',
     tagline: 'Decrypt the neon rain',
@@ -84,6 +92,7 @@ export default function App() {
   const [pathPlayerName, setPathPlayerName] = useLocalStorageState<string>('pathfinder:player', '')
   const [typeracerPlayerName, setTyperacerPlayerName] = useLocalStorageState<string>('typeracer:player', '')
   const [colorMatcherPlayerName, setColorMatcherPlayerName] = useLocalStorageState<string>('colormatcher:player', '')
+  const [minesweeperPlayerName, setMinesweeperPlayerName] = useLocalStorageState<string>('minesweeper:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -270,6 +279,31 @@ export default function App() {
         <ColorMatcherGame
           playerName={colorMatcherPlayerName}
           onResetPlayer={() => setColorMatcherPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'minesweeper') {
+    if (!minesweeperPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setMinesweeperPlayerName}
+            title="Minesweeper Classic"
+            description="Pick a codename to save your best clear times."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <MinesweeperGame
+          playerName={minesweeperPlayerName}
+          onResetPlayer={() => setMinesweeperPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>

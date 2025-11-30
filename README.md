@@ -22,6 +22,7 @@ When the main word grid feels warmed up, hop over to the Side Projects picker to
 - **HangMan** – classic gallows suspense that pulls real words from the dictionaries; streaks are tracked per language.
 - **Type Racer** – a clean typing test that stitches prompts from the dictionaries, measuring WPM and accuracy per language.
 - **Color Matcher** – a reflex-heavy hue check where you must pick the odd tile before the clock runs out. Streaks are saved per difficulty.
+- **Minesweeper Classic** – three iconic board sizes with right-click flags, a live timer, and best clear times saved per difficulty.
 
 ## Getting Started
 
