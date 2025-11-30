@@ -8,6 +8,7 @@ import { HangmanGame } from './features/hangman/HangmanGame'
 import { TypeRacerGame } from './features/typeracer/TypeRacerGame'
 import { ColorMatcherGame } from './features/colormatcher/ColorMatcherGame'
 import { MinesweeperGame } from './features/minesweeper/MinesweeperGame'
+import { ArcaneOdysseyGame } from './features/dndquest/ArcaneOdysseyGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -68,6 +69,13 @@ const PROJECTS: SideProject[] = [
     status: 'available',
   },
   {
+    id: 'arcaneodyssey',
+    name: '🪄 Arcane Odyssey',
+    tagline: 'Narrative duels + loot',
+    description: 'Two full acts of DnD-inspired choices, mana management, and turn-based combat versus scripted foes.',
+    status: 'available',
+  },
+  {
     id: 'cipherfall',
     name: 'Cipherfall',
     tagline: 'Decrypt the neon rain',
@@ -93,6 +101,7 @@ export default function App() {
   const [typeracerPlayerName, setTyperacerPlayerName] = useLocalStorageState<string>('typeracer:player', '')
   const [colorMatcherPlayerName, setColorMatcherPlayerName] = useLocalStorageState<string>('colormatcher:player', '')
   const [minesweeperPlayerName, setMinesweeperPlayerName] = useLocalStorageState<string>('minesweeper:player', '')
+  const [arcanePlayerName, setArcanePlayerName] = useLocalStorageState<string>('arcaneodyssey:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -304,6 +313,31 @@ export default function App() {
         <MinesweeperGame
           playerName={minesweeperPlayerName}
           onResetPlayer={() => setMinesweeperPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'arcaneodyssey') {
+    if (!arcanePlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setArcanePlayerName}
+            title="Arcane Odyssey"
+            description="Choose an alias for your spellblade run."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <ArcaneOdysseyGame
+          playerName={arcanePlayerName}
+          onResetPlayer={() => setArcanePlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>
