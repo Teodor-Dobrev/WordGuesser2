@@ -5,6 +5,7 @@ import { WormGame } from './features/worm/WormGame'
 import { MemoryGame } from './features/memory/MemoryGame'
 import { PathFinderGame } from './features/pathfinder/PathFinderGame'
 import { HangmanGame } from './features/hangman/HangmanGame'
+import { TypeRacerGame } from './features/typeracer/TypeRacerGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -37,6 +38,13 @@ const PROJECTS: SideProject[] = [
     status: 'available',
   },
   {
+    id: 'typeracer',
+    name: 'Type Racer',
+    tagline: 'One prompt. All speed.',
+    description: 'Sprint through a randomized prompt from the dictionaries and lock in your best WPM with perfect accuracy.',
+    status: 'available',
+  },
+  {
     id: 'pathfinder',
     name: 'Path Finder',
     tagline: 'Drag the only safe route',
@@ -66,6 +74,7 @@ export default function App() {
   const [memoryPlayerName, setMemoryPlayerName] = useLocalStorageState<string>('memorymatch:player', '')
   const [hangmanPlayerName, setHangmanPlayerName] = useLocalStorageState<string>('hangman:player', '')
   const [pathPlayerName, setPathPlayerName] = useLocalStorageState<string>('pathfinder:player', '')
+  const [typeracerPlayerName, setTyperacerPlayerName] = useLocalStorageState<string>('typeracer:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -202,6 +211,31 @@ export default function App() {
         <HangmanGame
           playerName={hangmanPlayerName}
           onResetPlayer={() => setHangmanPlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'typeracer') {
+    if (!typeracerPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setTyperacerPlayerName}
+            title="Type Racer"
+            description="Pick a codename so we can track your best WPM per language."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <TypeRacerGame
+          playerName={typeracerPlayerName}
+          onResetPlayer={() => setTyperacerPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>

@@ -20,6 +20,7 @@ When the main word grid feels warmed up, hop over to the Side Projects picker to
 - **Match the Emoji** – a multi-tier memory flip challenge that tracks your best clear times per board size.
 - **Path Finder** – a drag-to-draw maze that grows with each difficulty; reach the exit faster to set a new best time.
 - **HangMan** – classic gallows suspense that pulls real words from the dictionaries; streaks are tracked per language.
+- **Type Racer** – a clean typing test that stitches prompts from the dictionaries, measuring WPM and accuracy per language.
 
 ## Getting Started
 
