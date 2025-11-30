@@ -7,6 +7,7 @@ import { getPlayerHighScore, recordPlayerHighScore } from '../leaderboard/storag
 const HANGMAN_GAME_ID = 'hangman'
 const MAX_MISTAKES = 6
 const MAX_DEFINITION_ATTEMPTS = 10
+const USED_WORDS_STORAGE_KEY = 'hangman:usedWords:v1'
 const MAX_DEFINED_BULGARIAN_WORDS = 600
 const MIN_DEFINED_BULGARIAN_WORDS = 80
 const FALLBACK_WORDS: Record<GameLanguage, string[]> = {
@@ -106,6 +107,7 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
   const [wordDefinition, setWordDefinition] = useState<DefinitionSummary | null>(null)
   const [isChoosingWord, setIsChoosingWord] = useState(false)
   const selectionNonceRef = useRef(0)
+  const [usedWords, setUsedWords] = useState<Set<string>>(() => loadUsedWordsSet(playerName, 'english'))
 
   useEffect(() => {
     let cancelled = false
@@ -140,6 +142,21 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
   useEffect(() => {
     setBestStreak(getPlayerHighScore(HANGMAN_GAME_ID, playerName, language))
   }, [language, playerName])
+
+  useEffect(() => {
+    setUsedWords(loadUsedWordsSet(playerName, language))
+  }, [language, playerName])
+
+  useEffect(() => {
+    if (status !== 'won' || !secretWord) return
+    setUsedWords((prev) => {
+      if (prev.has(secretWord)) return prev
+      const next = new Set(prev)
+      next.add(secretWord)
+      persistUsedWords(playerName, language, next)
+      return next
+    })
+  }, [language, playerName, secretWord, status])
 
   const handleLetter = useCallback(
     (letter: string) => {
@@ -195,6 +212,14 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
 
   const beginRound = useCallback(() => {
     if (isLoading || dictionary.length === 0 || isChoosingWord) return
+
+    let available = dictionary.filter((word) => !usedWords.has(word))
+    if (available.length === 0) {
+      clearUsedWords(playerName, language)
+      setUsedWords(new Set())
+      available = [...dictionary]
+    }
+
     const nonce = selectionNonceRef.current + 1
     selectionNonceRef.current = nonce
     setIsChoosingWord(true)
@@ -206,7 +231,7 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
 
     ;(async () => {
       try {
-        const selection = await selectPlayableWord(dictionary, language, MAX_DEFINITION_ATTEMPTS)
+        const selection = await selectPlayableWord(available, language, MAX_DEFINITION_ATTEMPTS)
         if (selectionNonceRef.current !== nonce) return
         setSecretWord(selection.word)
         setWordDefinition(selection.definition ?? null)
@@ -214,7 +239,7 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
       } catch (error) {
         console.warn('Unable to choose hangman word', error)
         if (selectionNonceRef.current !== nonce) return
-        const fallbackWord = pickWord(dictionary)
+        const fallbackWord = pickWord(available)
         setSecretWord(fallbackWord)
         setStatus('playing')
       } finally {
@@ -223,7 +248,7 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
         }
       }
     })()
-  }, [dictionary, isChoosingWord, isLoading, language])
+  }, [dictionary, isChoosingWord, isLoading, language, playerName, usedWords])
 
   const stopRound = useCallback(() => {
     if (status === 'playing') {
@@ -467,6 +492,69 @@ function hasUsableDefinition(definition: DefinitionSummary | null | undefined) {
   const short = definition.short?.trim()
   if (!short) return false
   return short.toLowerCase() !== 'definition unavailable'
+}
+
+type UsedWordsStore = Record<string, Partial<Record<GameLanguage, string[]>>>
+
+function loadUsedWordsSet(playerName: string, language: GameLanguage) {
+  if (typeof window === 'undefined') return new Set<string>()
+  const store = readUsedWordsStore()
+  const normalizedPlayer = normalizePlayer(playerName)
+  const entry = store[normalizedPlayer]
+  return new Set(entry?.[language] ?? [])
+}
+
+function persistUsedWords(playerName: string, language: GameLanguage, words: Set<string>) {
+  if (typeof window === 'undefined') return
+  const store = readUsedWordsStore()
+  const normalizedPlayer = normalizePlayer(playerName)
+  if (!store[normalizedPlayer]) {
+    store[normalizedPlayer] = {}
+  }
+  store[normalizedPlayer]![language] = Array.from(words)
+  writeUsedWordsStore(store)
+}
+
+function clearUsedWords(playerName: string, language: GameLanguage) {
+  if (typeof window === 'undefined') return
+  const store = readUsedWordsStore()
+  const normalizedPlayer = normalizePlayer(playerName)
+  const entry = store[normalizedPlayer]
+  if (entry && entry[language]) {
+    delete entry[language]
+    if (Object.keys(entry).length === 0) {
+      delete store[normalizedPlayer]
+    }
+    writeUsedWordsStore(store)
+  }
+}
+
+function readUsedWordsStore(): UsedWordsStore {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.localStorage.getItem(USED_WORDS_STORAGE_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return {}
+    return parsed as UsedWordsStore
+  } catch (error) {
+    console.warn('Unable to read Hangman used words store', error)
+    return {}
+  }
+}
+
+function writeUsedWordsStore(store: UsedWordsStore) {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(USED_WORDS_STORAGE_KEY, JSON.stringify(store))
+  } catch (error) {
+    console.warn('Unable to persist Hangman used words store', error)
+  }
+}
+
+function normalizePlayer(name: string) {
+  const trimmed = name.trim().toLowerCase()
+  return trimmed || 'anonymous'
 }
 
 function normalizeLetter(raw: string, language: GameLanguage) {
