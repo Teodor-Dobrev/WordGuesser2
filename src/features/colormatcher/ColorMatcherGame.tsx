@@ -223,10 +223,17 @@ function generateRound(config: DifficultyConfig): GeneratedRound {
   const totalTiles = config.size * config.size
   const targetIndex = Math.floor(Math.random() * totalTiles)
   const baseHue = Math.floor(Math.random() * 360)
+
+  // Detect if the base color is greenish (90–150°)
+  const isGreen = baseHue >= 90 && baseHue <= 150
+  // Boost deltas for green hues
+  const hueDelta = isGreen ? config.hueDelta * 2.2 : config.hueDelta
+  const lightnessDelta = isGreen ? config.lightnessDelta * 1.7 : config.lightnessDelta
+
   const baseColor = buildColor(baseHue, 60, 55)
   const palette = Array.from({ length: totalTiles }, () => baseColor)
-  const specialHue = wrapHue(baseHue + randomSign() * config.hueDelta)
-  const specialLightness = clamp(40, 65, 55 + randomSign() * config.lightnessDelta)
+  const specialHue = wrapHue(baseHue + randomSign() * hueDelta)
+  const specialLightness = clamp(40, 65, 55 + randomSign() * lightnessDelta)
   palette[targetIndex] = buildColor(specialHue, 60, specialLightness)
   return { palette, targetIndex }
 }
