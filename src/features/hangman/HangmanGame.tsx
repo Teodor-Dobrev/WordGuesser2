@@ -278,7 +278,7 @@ export function HangmanGame({ playerName, onResetPlayer, onSwitchProject }: Hang
       <header className="hangman-header">
         <div>
           <p className="eyebrow">HangMan</p>
-          <h1>Guess the word before the rope runs out</h1>
+          <h1>🪢 Guess the word before the rope runs out</h1>
           <p>Drag-free challenge: just letters, logic, and a ticking gallows.</p>
         </div>
         <div className="hangman-actions">

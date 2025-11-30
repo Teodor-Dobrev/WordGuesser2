@@ -133,7 +133,7 @@ export function ColorMatcherGame({ playerName, onResetPlayer, onSwitchProject }:
       <header className="colormatcher-header">
         <div>
           <p className="eyebrow">Color Matcher</p>
-          <h1>Spot the odd tile before the clock hits zero.</h1>
+          <h1>🎨 Spot the odd tile before the clock hits zero.</h1>
           <p>The grid shrinks the hue gap each difficulty step. Keep your streak alive for as long as you can.</p>
         </div>
         <div className="colormatcher-actions">

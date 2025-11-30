@@ -187,7 +187,7 @@ export function PathFinderGame({ playerName, onResetPlayer, onSwitchProject }: P
       <header className="pathfinder-header">
         <div>
           <p className="eyebrow">Path Finder</p>
-          <h1>Trace the safe route</h1>
+          <h1>🧭 Trace the safe route</h1>
           <p>Drag from the green start to the blue exit without touching the walls. Bigger mazes unlock on higher difficulties.</p>
         </div>
         <div className="pathfinder-stats">

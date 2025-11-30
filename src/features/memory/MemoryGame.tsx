@@ -290,7 +290,7 @@ export function MemoryGame({ playerName, onResetPlayer, onSwitchProject }: Memor
       <header className="memory-header">
         <div>
           <p className="eyebrow">Emoji Memory Match</p>
-          <h1>Match the Emoji</h1>
+          <h1>🧠 Match the Emoji</h1>
           <p>Flip two panels at a time, remember their positions, and clear the board as fast as you can.</p>
         </div>
         <div className="memory-scoreboard">

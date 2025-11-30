@@ -267,7 +267,7 @@ export function WormGame({ playerName, onResetPlayer, onSwitchProject }: WormGam
       <header className="worm-header">
         <div>
           <p className="eyebrow">Arcade classic</p>
-          <h1>Worm</h1>
+          <h1>🐍 Worm</h1>
           <p>Steer with arrow keys, eat apples, and avoid yourself. Each apple adds a point.</p>
         </div>
         <div className="worm-scoreboard">

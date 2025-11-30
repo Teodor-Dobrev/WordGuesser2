@@ -325,6 +325,10 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
   return (
     <div className="panel game-layout">
       <div className="game-header">
+        <div>
+          <p className="eyebrow">Word Guesser</p>
+          <h1>🧩 Word Guesser</h1>
+        </div>
         <div className="word-readout">
           <div>
             <div>Current selection</div>

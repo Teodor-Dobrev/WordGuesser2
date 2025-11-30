@@ -169,7 +169,7 @@ export function TypeRacerGame({ playerName, onResetPlayer, onSwitchProject }: Ty
       <header className="typeracer-header">
         <div>
           <p className="eyebrow">Type Racer</p>
-          <h1>Hit the keys, chase perfect accuracy.</h1>
+          <h1>⌨️ Hit the keys, chase perfect accuracy.</h1>
           <p>The prompt pulls straight from our dictionaries. Finish it clean to lock a new personal best.</p>
         </div>
         <div className="typeracer-actions">
