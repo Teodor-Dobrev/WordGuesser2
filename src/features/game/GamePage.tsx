@@ -93,58 +93,73 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
     }
   }, [])
 
-  const handleGuess = useCallback(() => {
-    if (!gameActive) return
-    if (!currentWord || currentWord.length < 2) return
-    const normalized = normalizeWord(currentWord)
-    if (!dictionary.has(normalized)) return
-
-    const wordPoints = pointsForLength(normalized.length)
-    const timestamp = Date.now()
-    let accepted = false
-    let duplicate = false
-
-    setGuessedWords((prev) => {
-      if (prev.some((entry) => entry.word === normalized)) {
-        duplicate = true
-        return prev
+  const submitCurrentWord = useCallback(
+    (options?: { allowWhenInactive?: boolean }) => {
+      const allowWhenInactive = options?.allowWhenInactive ?? false
+      if (!allowWhenInactive && !gameActive) {
+        return { accepted: false, duplicate: false, points: 0 }
       }
-      const nextEntry: GuessedWord = {
-        word: normalized,
-        points: wordPoints,
-        definition: null,
-        timestamp,
+      if (!currentWord || currentWord.length < 2) {
+        return { accepted: false, duplicate: false, points: 0 }
       }
-      accepted = true
-      const updated = [...prev, nextEntry]
-      updated.sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points
-        if (b.word.length !== a.word.length) return b.word.length - a.word.length
-        return a.word.localeCompare(b.word)
-      })
-      return updated
-    })
+      const normalized = normalizeWord(currentWord)
+      if (!dictionary.has(normalized)) {
+        return { accepted: false, duplicate: false, points: 0 }
+      }
 
-    clear()
+      const wordPoints = pointsForLength(normalized.length)
+      const timestamp = Date.now()
+      let accepted = false
+      let duplicate = false
 
-    if (!accepted && !duplicate) {
-      return
-    }
-
-    // Request a definition for the guessed word for supported languages
-    if (language === 'english' || language === 'bulgarian') {
-      getDefinition(normalized, language).then((definition) => {
-        if (!definition) return
-        setGuessedWords((prev) => {
-          const existing = prev.find((entry) => entry.word === normalized)
-          if (!existing) {
-            return prev.map((entry) => (entry.timestamp === timestamp ? { ...entry, definition } : entry))
-          }
-          return prev.map((entry) => (entry.word === normalized ? { ...entry, definition } : entry))
+      setGuessedWords((prev) => {
+        if (prev.some((entry) => entry.word === normalized)) {
+          duplicate = true
+          return prev
+        }
+        const nextEntry: GuessedWord = {
+          word: normalized,
+          points: wordPoints,
+          definition: null,
+          timestamp,
+        }
+        accepted = true
+        const updated = [...prev, nextEntry]
+        updated.sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points
+          if (b.word.length !== a.word.length) return b.word.length - a.word.length
+          return a.word.localeCompare(b.word)
         })
+        return updated
       })
-    }
-  }, [clear, dictionary, gameActive, language, currentWord])
+
+      clear()
+
+      if (!accepted && !duplicate) {
+        return { accepted: false, duplicate: false, points: 0 }
+      }
+
+      if (language === 'english' || language === 'bulgarian') {
+        getDefinition(normalized, language).then((definition) => {
+          if (!definition) return
+          setGuessedWords((prev) => {
+            const existing = prev.find((entry) => entry.word === normalized)
+            if (!existing) {
+              return prev.map((entry) => (entry.timestamp === timestamp ? { ...entry, definition } : entry))
+            }
+            return prev.map((entry) => (entry.word === normalized ? { ...entry, definition } : entry))
+          })
+        })
+      }
+
+      return { accepted, duplicate, points: accepted ? wordPoints : 0 }
+    },
+    [clear, dictionary, gameActive, language, currentWord],
+  )
+
+  const handleGuess = useCallback(() => {
+    submitCurrentWord()
+  }, [submitCurrentWord])
 
   const stopTimer = useCallback(() => {
     if (timerIdRef.current) {
@@ -159,6 +174,9 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
     (reason: 'timeout' | 'forfeit') => {
       void reason
       if (statusRef.current !== 'running') return
+      const { accepted, points } = submitCurrentWord({ allowWhenInactive: true })
+      const finalPoints = roundPoints + points
+      const finalWords = wordsFound + (accepted ? 1 : 0)
       stopTimer()
       setStatus('ended')
       setRemainingMs(0)
@@ -168,20 +186,20 @@ export function GamePage({ playerName, onResetPlayer, onSwitchProject }: GamePag
       const leaderboardEntry = {
         id: entryId,
         player: playerName,
-        points: roundPoints,
-        words: wordsFound,
+        points: finalPoints,
+        words: finalWords,
         timerSeconds,
         finishedAt: new Date().toISOString(),
       }
       const updated = recordLeaderboardEntry(leaderboardEntry)
       setLeaderboardEntries(updated)
-      const updatedHighScore = recordPlayerHighScore(WORD_GUESSER_GAME_ID, playerName, roundPoints)
+      const updatedHighScore = recordPlayerHighScore(WORD_GUESSER_GAME_ID, playerName, finalPoints)
       setPlayerHighScore(updatedHighScore)
       setHighlightEntryId(entryId)
       clear()
       setLeaderboardTimer(timerSeconds)
     },
-    [clear, wordsFound, playerName, roundPoints, stopTimer, timerSeconds],
+    [clear, wordsFound, playerName, roundPoints, stopTimer, timerSeconds, submitCurrentWord],
   )
 
   useEffect(() => {
