@@ -34,6 +34,65 @@ export const ENGLISH_WEIGHTS: Array<[string, number]> = [
   ['Z', 0.07],
 ]
 
+export const ENGLISH_EASY_WEIGHTS: Array<[string, number]> = [
+  ['E', 11.46],
+  ['T', 9.38],  // Significantly higher than standard English (usually ~9.1)
+  ['O', 7.29],
+  ['A', 6.25],  // Lower than standard English (~8.2) to prevent vowel flooding
+  ['I', 6.25],
+  ['N', 6.25],
+  ['S', 6.25],
+  ['H', 5.21],  // Boosted to help form "TH", "SH", "CH"
+  ['R', 5.21],
+  ['L', 4.17],
+  ['D', 3.12],
+  ['U', 3.12],
+  ['W', 3.12],
+  ['M', 2.08],
+  ['B', 2.08],
+  ['C', 2.08],
+  ['F', 2.08],
+  ['G', 2.08],
+  ['P', 2.08],
+  ['V', 2.08],
+  ['Y', 3.12],  // Boosted as a semi-vowel
+  ['J', 1.04],
+  ['K', 1.04],
+  ['Q', 1.04],  // See logic note below regarding "Qu"
+  ['X', 1.04],
+  ['Z', 1.04],
+];
+
+// Softer distribution for casual boards: extra vowels/consonants that form common digraphs, slightly heavier rare letters.
+export const GRID_OPTIMIZED_WEIGHTS: Array<[string, number]> = [
+  ['E', 11.0],
+  ['A', 10.0],
+  ['I', 9.0],
+  ['O', 8.5],
+  ['N', 7.0],
+  ['R', 6.5],
+  ['T', 6.0],
+  ['L', 5.0],
+  ['S', 5.0],
+  ['C', 4.2],
+  ['D', 4.0],
+  ['H', 4.0],
+  ['M', 3.2],
+  ['P', 3.0],
+  ['G', 2.6],
+  ['B', 2.0],
+  ['F', 2.0],
+  ['Y', 2.0],
+  ['U', 2.0],
+  ['W', 1.6],
+  ['K', 1.2],
+  ['V', 1.1],
+  ['X', 0.4],
+  ['J', 0.4],
+  ['Q', 0.3],
+  ['Z', 0.3],
+]
+
 export const BULGARIAN_WEIGHTS: Array<[string, number]> = [
   ['А', 8.0],
   ['Б', 1.5],
@@ -74,5 +133,5 @@ export function formatDuration(totalSeconds: number) {
 }
 
 export function getWeights(language: GameLanguage) {
-  return language === 'english' ? ENGLISH_WEIGHTS : BULGARIAN_WEIGHTS
+  return language === 'english' ? ENGLISH_EASY_WEIGHTS : BULGARIAN_WEIGHTS
 }
