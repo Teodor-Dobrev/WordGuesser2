@@ -9,6 +9,7 @@ import { TypeRacerGame } from './features/typeracer/TypeRacerGame'
 import { ColorMatcherGame } from './features/colormatcher/ColorMatcherGame'
 import { MinesweeperGame } from './features/minesweeper/MinesweeperGame'
 import { ArcaneOdysseyGame } from './features/dndquest/ArcaneOdysseyGame'
+import { EmberClashGame } from './features/emberclash/EmberClashGame'
 import { useLocalStorageState } from './hooks/useLocalStorage'
 
 const PROJECTS: SideProject[] = [
@@ -75,6 +76,13 @@ const PROJECTS: SideProject[] = [
     description: 'Two full acts of DnD-inspired choices, mana management, and turn-based combat versus scripted foes.',
     status: 'available',
   },
+  {
+    id: 'emberclash',
+    name: 'Ember Clash',
+    tagline: 'Full Act 1 card run',
+    description: 'A 10-floor run with events, shops, rest stops, elite pressure, and a final boss fight.',
+    status: 'available',
+  },
 ]
 
 export default function App() {
@@ -88,6 +96,7 @@ export default function App() {
   const [colorMatcherPlayerName, setColorMatcherPlayerName] = useLocalStorageState<string>('colormatcher:player', '')
   const [minesweeperPlayerName, setMinesweeperPlayerName] = useLocalStorageState<string>('minesweeper:player', '')
   const [arcanePlayerName, setArcanePlayerName] = useLocalStorageState<string>('arcaneodyssey:player', '')
+  const [emberClashPlayerName, setEmberClashPlayerName] = useLocalStorageState<string>('emberclash:player', '')
 
   const selectedProject = PROJECTS.find((project) => project.id === activeProject)
 
@@ -324,6 +333,31 @@ export default function App() {
         <ArcaneOdysseyGame
           playerName={arcanePlayerName}
           onResetPlayer={() => setArcanePlayerName('')}
+          onSwitchProject={returnToPicker}
+        />
+      </div>
+    )
+  }
+
+  if (selectedProject.id === 'emberclash') {
+    if (!emberClashPlayerName) {
+      return (
+        <div className="app-shell">
+          <NameGate
+            onEnter={setEmberClashPlayerName}
+            title="Ember Clash"
+            description="Choose an alias for your full Act 1 forge run."
+            onBack={returnToPicker}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="app-shell">
+        <EmberClashGame
+          playerName={emberClashPlayerName}
+          onResetPlayer={() => setEmberClashPlayerName('')}
           onSwitchProject={returnToPicker}
         />
       </div>
